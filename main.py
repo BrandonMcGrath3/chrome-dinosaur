@@ -28,6 +28,9 @@ CLOUD = pygame.image.load(os.path.join("Assets/Other", "Cloud.png"))
 
 BG = pygame.image.load(os.path.join("Assets/Other", "Track.png"))
 
+FPS_Clock = pygame.time.Clock()
+FPS = 30
+FPS_Clock.tick(FPS)
 
 class Dinosaur:
     X_POS = 80
@@ -62,15 +65,15 @@ class Dinosaur:
         if self.step_index >= 10:
             self.step_index = 0
 
-        if userInput[pygame.K_UP] and not self.dino_jump:
+        if userInput[pygame.K_w] and not self.dino_jump:
             self.dino_duck = False
             self.dino_run = False
             self.dino_jump = True
-        elif userInput[pygame.K_DOWN] and not self.dino_jump:
+        elif userInput[pygame.K_s] and not self.dino_jump:
             self.dino_duck = True
             self.dino_run = False
             self.dino_jump = False
-        elif not (self.dino_jump or userInput[pygame.K_DOWN]):
+        elif not (self.dino_jump or userInput[pygame.K_s]):
             self.dino_duck = False
             self.dino_run = True
             self.dino_jump = False
@@ -169,7 +172,7 @@ def main():
     clock = pygame.time.Clock()
     player = Dinosaur()
     cloud = Cloud()
-    game_speed = 20
+    game_speed = 18
     x_pos_bg = 0
     y_pos_bg = 380
     points = 0
@@ -181,7 +184,7 @@ def main():
         global points, game_speed
         points += 1
         if points % 100 == 0:
-            game_speed += 1
+            game_speed += 2
 
         text = font.render("Points: " + str(points), True, (0, 0, 0))
         textRect = text.get_rect()
@@ -244,7 +247,7 @@ def menu(death_count):
         font = pygame.font.Font('freesansbold.ttf', 30)
 
         if death_count == 0:
-            text = font.render("Press any Key to Start", True, (0, 0, 0))
+            text = font.render("Press any Key to Start: Use W to Jump or S to Crouch.", True, (0, 0, 0))
         elif death_count > 0:
             text = font.render("Press any Key to Restart", True, (0, 0, 0))
             score = font.render("Your Score: " + str(points), True, (0, 0, 0))
