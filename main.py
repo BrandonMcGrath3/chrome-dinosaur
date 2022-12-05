@@ -157,6 +157,8 @@ class Dinosaur2:
         if self.step_index >= 10:
             self.step_index = 0
 
+#set up new set of keybinds for the purple dino
+
         if userInput[pygame.K_UP] and not self.dino_jump:
             self.dino_duck = False
             self.dino_run = False
@@ -256,6 +258,7 @@ class Bird(Obstacle):
         SCREEN.blit(self.image[self.index//5], self.rect)
         self.index += 1
 
+#added high_score, game_count, and p1/2_dead into global 
 
 def main():
     global game_speed, x_pos_bg, y_pos_bg, points, obstacles, high_score, high_score1, game_count, p1_dead, p2_dead
@@ -391,9 +394,8 @@ def main():
         pygame.display.update()
 
 def menu(death_count):
+    #created global constant for highscore
     global high_score
-    #global high_score1
-    
     global points
     
     run = True
@@ -402,10 +404,11 @@ def menu(death_count):
         font = pygame.font.Font('freesansbold.ttf', 20)
         
         if death_count == 0:
-            text = font.render("Press any Key to Start: Green Dino uses W to jump or S to crouch + Purple Dino uses UP to jump and DOWN to crouch", True, (0, 255, 0))
+            #Created custom start screen that tells players which controls control the associated dino
+            text = font.render("Press any Key to Start: [Green Dino uses W to jump and S to crouch!] [Purple Dino uses UP to jump and DOWN to crouch!]", True, (0, 255, 0))
         elif death_count > 0:
             
-            #Display both players high score after one of the two character dies
+            #Displays both players high score after one of the two character dies
             text1 = font.render("Green Dino High Score: " + str(high_score), True, (0, 255 , 0))
             text2 = font.render("Purple Dino High Score: " + str(high_score1), True, (160, 32 , 240))
             text = font.render("Press any Key to Restart", True, (0, 0, 0))
@@ -413,6 +416,8 @@ def menu(death_count):
             scoreRect = score.get_rect()
             scoreRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
             SCREEN.blit(score, scoreRect)
+
+            #Rectified highscore in order to show up on game
 
             highscoreRect = text1.get_rect()
             highscoreRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100)
@@ -424,7 +429,7 @@ def menu(death_count):
             
 
         
-        #The first screen the user experiences
+        #The first screen the user experiences (setting the initial dino the user sees as gray)
         textRect = text.get_rect()
         textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         SCREEN.blit(text, textRect)
