@@ -7,15 +7,30 @@ pygame.init()
 SCREEN_HEIGHT = 800
 SCREEN_WIDTH = 1300
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+#variable keeps track of how many games have been played
 global game_count 
 game_count = 0
+#variable keeps track of whether or not player 1 (green) is dead (True) or alive (False)
+global p1_dead
+p1_dead = False
 
+#variable keeps track of whether or not player 2 (purple) is dead (True) or alive (False)
+global p2_dead
+p2_dead = False
 
+START = [pygame.image.load(os.path.join("Assets/Dino", "DinoStartRun1.png"))]
 RUNNING = [pygame.image.load(os.path.join("Assets/Dino", "DinoRun1.png")),
            pygame.image.load(os.path.join("Assets/Dino", "DinoRun2.png"))]
 JUMPING = pygame.image.load(os.path.join("Assets/Dino", "DinoJump.png"))
 DUCKING = [pygame.image.load(os.path.join("Assets/Dino", "DinoDuck1.png")),
            pygame.image.load(os.path.join("Assets/Dino", "DinoDuck2.png"))]
+
+RUNNING1 = [pygame.image.load(os.path.join("Assets/Dino", "Dino2Run1.png")),
+           pygame.image.load(os.path.join("Assets/Dino", "Dino2Run2.png"))]
+JUMPING1 = pygame.image.load(os.path.join("Assets/Dino", "Dino2Jump.png"))
+DUCKING1 = [pygame.image.load(os.path.join("Assets/Dino", "Dino2Duck1.png")),
+           pygame.image.load(os.path.join("Assets/Dino", "Dino2Duck2.png"))]
 
 SMALL_CACTUS = [pygame.image.load(os.path.join("Assets/Cactus", "SmallCactus1.png")),
                 pygame.image.load(os.path.join("Assets/Cactus", "SmallCactus2.png")),
@@ -31,11 +46,10 @@ CLOUD = pygame.image.load(os.path.join("Assets/Other", "Cloud.png"))
 
 BG = pygame.image.load(os.path.join("Assets/Other", "Track.png"))
 
+#a limiter that sets the maximum FPS to 30
 FPS_Clock = pygame.time.Clock()
 FPS = 30
 FPS_Clock.tick(FPS)
-
-
 
 class Dinosaur:
     X_POS = 60
@@ -109,7 +123,7 @@ class Dinosaur:
     def draw(self, SCREEN):
         SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
 
-#player 2
+#player 2 class used for purple dino
 class Dinosaur2:
     X_POS = 160
     Y_POS = 310
@@ -117,9 +131,9 @@ class Dinosaur2:
     JUMP_VEL = 8.5
 
     def __init__(self):
-        self.duck_img = DUCKING
-        self.run_img = RUNNING
-        self.jump_img = JUMPING
+        self.duck_img = DUCKING1
+        self.run_img = RUNNING1
+        self.jump_img = JUMPING1
 
         self.dino_duck = False
         self.dino_run = True
@@ -181,7 +195,6 @@ class Dinosaur2:
 
     def draw(self, SCREEN):
         SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
-# ###########
 
 class Cloud:
     def __init__(self):
@@ -245,13 +258,13 @@ class Bird(Obstacle):
 
 
 def main():
-    global game_speed, x_pos_bg, y_pos_bg, points, obstacles, high_score, game_count
+    global game_speed, x_pos_bg, y_pos_bg, points, obstacles, high_score, high_score1, game_count, p1_dead, p2_dead
     run = True
     clock = pygame.time.Clock()
     player = Dinosaur()
     player2 = Dinosaur2()
     cloud = Cloud()
-    game_speed = 18
+    game_speed = 18 
     x_pos_bg = 0
     y_pos_bg = 380
     points = 0
@@ -263,23 +276,28 @@ def main():
     
 
     def score():
-        global points, game_speed
+        global points, game_speed, high_score, high_score1
         points += 1
         if points % 100 == 0:
             game_speed += 2
+        #displays high score after the first game played for both players in the top right during gameplay
         if(game_count >= 1):
-            text1 = font.render("High Score: " + str(high_score), True, (255, 0, 0))
+            text1 = font.render("Green Dino High Score: " + str(high_score), True, (0, 255, 0))
             text1Rect = text1.get_rect()
-            text1Rect.center = (1200, 40)
+            text1Rect.center = (1100, 40)
             SCREEN.blit(text1, text1Rect)
+            text2 = font.render("Purple Dino High Score: " + str(high_score1), True, (160, 32, 240))
+            text2Rect = text2.get_rect()
+            text2Rect.center = (1100, 100)
+            SCREEN.blit(text2, text2Rect)
 
         text = font.render("Points: " + str(points), True, (0, 0, 0))
         textRect = text.get_rect()
-        textRect.center = (1000, 40)
+        textRect.center = (900, 40)
         SCREEN.blit(text, textRect)
 
     def background():
-        global x_pos_bg, y_pos_bg
+        global x_pos_bg, y_pos_bg, high_score, high_score1
         image_width = BG.get_width()
         SCREEN.blit(BG, (x_pos_bg, y_pos_bg))
         SCREEN.blit(BG, (image_width + x_pos_bg, y_pos_bg))
@@ -296,11 +314,14 @@ def main():
         SCREEN.fill((255, 255, 255))
         userInput = pygame.key.get_pressed()
 
-        player.draw(SCREEN)
-        player.update(userInput)
-
-        player2.draw(SCREEN)
-        player2.update(userInput)
+        #ONLY display player 1 (green dino) if the variable is set to False meaning the player hasn't died yet
+        if(p1_dead == False):
+            player.draw(SCREEN)
+            player.update(userInput)
+        #ONLY display player 2 (purple dino) if the variable is set to False meaning the player hasn't died yet
+        if(p2_dead == False):
+            player2.draw(SCREEN)
+            player2.update(userInput)
 
         if len(obstacles) == 0:
             if random.randint(0, 2) == 0:
@@ -313,29 +334,51 @@ def main():
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
             obstacle.update()
-            if player.dino_rect.colliderect(obstacle.rect):
-                pygame.time.delay(2000)
-                death_count += 1
-                game_count += 1
-                if(game_count > 1):
-                    if(high_score < points):
+            #sets collision for player 1 (green dino) only if they're alive and visible on the screen
+            if p1_dead == False:
+                if player.dino_rect.colliderect(obstacle.rect):
+                    pygame.time.delay(2000)
+                    death_count += 1
+                    game_count += 1
+                    #if more than one game has been played adjust the high score
+                    if(game_count > 1):
+                        if(high_score < points):
+                            high_score = points
+                    #if this is the first playthrough set the high score for both players to the points earned so far
+                    else:
                         high_score = points
-                else:
-                    high_score = points
-                
-                menu(death_count)
-
-            if player2.dino_rect.colliderect(obstacle.rect):
-                pygame.time.delay(2000)
-                death_count += 1
-                game_count += 1
-                if(game_count > 1):
-                    if(high_score < points):
+                        high_score1 = points
+                    #if both players would be dead reset the game and spawn both players in by resetting the p1_dead & p2_dead variables to False (Alive)
+                    if(p2_dead == True):
+                        p2_dead = False
+                        p1_dead = False
+                    #if this is the first player to die then set them to dead
+                    else:
+                        p1_dead = True
+                    menu(death_count)
+                        
+            #sets collision for player 2 (purple dino) only if they're alive and visible on the screen
+            if p2_dead == False:
+                if player2.dino_rect.colliderect(obstacle.rect):
+                    pygame.time.delay(2000)
+                    death_count += 1
+                    game_count += 1
+                    #if more than one game has been played adjust the high score
+                    if(game_count > 1):
+                        if(high_score1 < points):
+                            high_score1 = points
+                    #if this is the first playthrough set the high score for both players to the points earned so far
+                    else:
+                        high_score1 = points
                         high_score = points
-                else:
-                    high_score = points
-                
-                menu(death_count)
+                    #if both players would be dead reset the game and spawn both players in by resetting the p1_dead & p2_dead variables to False (Alive)
+                    if(p1_dead == True):
+                        p2_dead = False
+                        p1_dead = False
+                    #if this is the first player to die then set them to dead
+                    else:
+                        p2_dead = True
+                    menu(death_count)
 
         background()
 
@@ -348,22 +391,25 @@ def main():
         pygame.display.update()
 
 def menu(death_count):
-    global high_score 
+    global high_score
+    #global high_score1
     
     global points
     
     run = True
     while run:
         SCREEN.fill((255, 255, 255))
-        font = pygame.font.Font('freesansbold.ttf', 30)
+        font = pygame.font.Font('freesansbold.ttf', 20)
         
         if death_count == 0:
-            text = font.render("Press any Key to Start: Use W to Jump or S to Crouch.", True, (0, 255, 0))
+            text = font.render("Press any Key to Start: Green Dino uses W to jump or S to crouch + Purple Dino uses UP to jump and DOWN to crouch", True, (0, 255, 0))
         elif death_count > 0:
             
-            text1 = font.render("High Score: " + str(high_score), True, (255, 0 , 0))
+            #Display both players high score after one of the two character dies
+            text1 = font.render("Green Dino High Score: " + str(high_score), True, (0, 255 , 0))
+            text2 = font.render("Purple Dino High Score: " + str(high_score1), True, (160, 32 , 240))
             text = font.render("Press any Key to Restart", True, (0, 0, 0))
-            score = font.render("Your Score: " + str(points), True, (0, 0, 0))
+            score = font.render("Score: " + str(points), True, (0, 0, 0))
             scoreRect = score.get_rect()
             scoreRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
             SCREEN.blit(score, scoreRect)
@@ -371,18 +417,21 @@ def menu(death_count):
             highscoreRect = text1.get_rect()
             highscoreRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100)
             SCREEN.blit(text1, highscoreRect)
+            highscoreRect1 = text2.get_rect()
+            highscoreRect1.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 150)
+            SCREEN.blit(text2, highscoreRect1)
             
             
 
         
-
+        #The first screen the user experiences
         textRect = text.get_rect()
         textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         SCREEN.blit(text, textRect)
 
         
 
-        SCREEN.blit(RUNNING[0], (SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2 - 140))
+        SCREEN.blit(START[0], (SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2 - 140))
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
