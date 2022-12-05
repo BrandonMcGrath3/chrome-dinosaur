@@ -180,6 +180,11 @@ def main():
     obstacles = []
     death_count = 0
 
+    def highscore():
+        highScoreFile = open("highScoreFile.txt", "r")
+        highScore = highScoreFile.read()
+        highScoreFile.close()
+
     def score():
         global points, game_speed
         points += 1
@@ -187,9 +192,12 @@ def main():
             game_speed += 2
 
         text = font.render("Points: " + str(points), True, (0, 0, 0))
+        highScoreText = font.render("Highscore: " + str(highscore), True, (0,0,0))
         textRect = text.get_rect()
+        textRect2 = highScoreText.get_rect()
         textRect.center = (1000, 40)
-        SCREEN.blit(text, textRect)
+        textRect2.center = (950, 40)
+        SCREEN.blit(text, textRect, textRect2)
 
     def background():
         global x_pos_bg, y_pos_bg
@@ -234,9 +242,15 @@ def main():
         cloud.update()
 
         score()
+        highscore()
 
         clock.tick(30)
         pygame.display.update()
+
+    if score > int(highscore):
+        highScoreFile = open("highScoreFile.txt", "w")
+        highScoreFile.write(str(score))
+        highScoreFile.close()
 
 
 def menu(death_count):
